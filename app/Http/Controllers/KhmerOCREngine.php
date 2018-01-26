@@ -14,7 +14,7 @@ class KhmerOCREngine extends Controller
         $extension = $img_file_uploaded->getClientOriginalExtension();
         //$img_file_name = $img_file_uploaded->getFilename().'.'.$extension;
         $img_file_name = date('m-d-Y_H_i_s').'.'.$extension;
-        $storage = Storage::disk('local');
+        $storage = Storage::disk(env('OCR_STORAGE'));
         $successfully_store = $storage->put($img_file_name, File::get($img_file_uploaded));
         if($successfully_store == true)
         {
