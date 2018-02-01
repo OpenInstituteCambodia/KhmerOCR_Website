@@ -31,11 +31,21 @@
         </div>
       </div>
     </div>
+
     <!--show waiting loading dialog -->
-    <div class="modal fade fixed-dialog-center" id="modal_waiting" data-keyboard="false" data-backdrop="static">
-      <div class="modal-dialog">
-          <div><h3></h3></div><br/>
-          <div class="spinner"></div>
+    <div class="modal hide fade" id="modal_spinner" data-keyboard="false" data-backdrop="static" aria-hidden="true">
+      <div class="modal-dialog" id="spinner_div">
+          <div class="sk-cube-grid">
+              <div class="sk-cube sk-cube1"></div>
+              <div class="sk-cube sk-cube2"></div>
+              <div class="sk-cube sk-cube3"></div>
+              <div class="sk-cube sk-cube4"></div>
+              <div class="sk-cube sk-cube5"></div>
+              <div class="sk-cube sk-cube6"></div>
+              <div class="sk-cube sk-cube7"></div>
+              <div class="sk-cube sk-cube8"></div>
+              <div class="sk-cube sk-cube9"></div>
+          </div>
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
   </section>
@@ -45,7 +55,9 @@
   <script>
       $(document).ready(function() {
           $("form[name='frmUploadImg']").submit(function(e) {
-              $('#modal_waiting').modal('show');
+
+              $('#modal_spinner').modal('show');
+              $('#spinner_div').show();
               var formData = new FormData($(this)[0]);
               $.ajax({
                   url: "{{ url('/generated_text') }}",
@@ -53,14 +65,24 @@
                   data: formData,
                   async: false,
                   success: function (result) {
-                      $('#modal_waiting').modal('hide');
+                      $('#modal_spinner').modal('hide');
+                      $('.modal-backdrop').hide();
+                      $('#spinner_div').hide();
                       $("#khmer_ocr_result").html(result).show();
+
                   },
                   cache: false,
                   contentType: false,
                   processData: false
               });
               e.preventDefault();
+          });
+
+          $(window).blur(function() {
+              $('.modal').removeClass('fade');
+          });
+          $(window).focus(function() {
+              $('.modal').addClass('fade');
           });
       });
   </script>
