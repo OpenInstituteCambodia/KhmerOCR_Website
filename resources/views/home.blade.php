@@ -33,8 +33,8 @@
     </div>
 
     <!--show waiting loading dialog -->
-    <div class="modal hide fade" id="modal_spinner" data-keyboard="false" data-backdrop="static" aria-hidden="true">
-      <div class="modal-dialog" id="spinner_div">
+    <div class="modal fade" id="modal_spinner" data-keyboard="false" data-backdrop="static" aria-hidden="true">
+      <div class="modal-dialog">
           <div class="sk-cube-grid">
               <div class="sk-cube sk-cube1"></div>
               <div class="sk-cube sk-cube2"></div>
@@ -57,7 +57,6 @@
           $("form[name='frmUploadImg']").submit(function(e) {
 
               $('#modal_spinner').modal('show');
-              $('#spinner_div').show();
               var formData = new FormData($(this)[0]);
               $.ajax({
                   url: "{{ url('/generated_text') }}",
@@ -66,8 +65,6 @@
                   async: false,
                   success: function (result) {
                       $('#modal_spinner').modal('hide');
-                      $('.modal-backdrop').hide();
-                      $('#spinner_div').hide();
                       $("#khmer_ocr_result").html(result).show();
 
                   },
