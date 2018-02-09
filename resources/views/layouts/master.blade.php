@@ -25,7 +25,6 @@
         <script src="{{ URL::asset('vendors/bootstrap4.0-b3/js/bootstrap.min.js')}}"></script>
         <script src="{{ URL::asset('vendors/bootstrap4.0-b3/js/scrolling-nav.js')}}"></script>
 
-
         @stack('script')
     </body>
 
