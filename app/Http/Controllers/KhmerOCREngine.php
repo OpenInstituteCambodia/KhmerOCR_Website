@@ -52,13 +52,10 @@ class KhmerOCREngine extends Controller
 
             //upload img and text file to S3
             $upload_to_s3 = Storage::disk('s3')->put($img_file_name .'.'.$extension, File::get($get_file), 'public');
-            logger($upload_to_s3);
-
+            // delete img file after upload
             if($upload_to_s3  == true)
             {
-                $t = File::Delete($get_file);
-                logger($get_file);
-                logger($t);
+                File::Delete($get_file);
             }
 
             // Storage::disk('s3')->put($img_file_name .'.'.$extension, File::get($storage->url('public/'.$img_file_name .'.'.$extension)), 'public');
