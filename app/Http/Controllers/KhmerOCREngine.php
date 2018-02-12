@@ -13,6 +13,7 @@ class KhmerOCREngine extends Controller
     {
         $img_file_uploaded = $request->file('image_file');
         $extension = $img_file_uploaded->getClientOriginalExtension();
+
         //$img_file_name = $img_file_uploaded->getFilename().'.'.$extension;
         // file name only without extension
         $img_file_name = date('m-d-Y_H_i_s');
@@ -20,18 +21,18 @@ class KhmerOCREngine extends Controller
         // set storage name to be used
         $storage = Storage::disk(env('OCR_STORAGE'));
         // For Local storage
-        // $successfully_upload = $storage->put("public/".$img_file_name .'.'.$extension, File::get($img_file_uploaded));
+        $success_img_upload = $storage->put("public/".$img_file_name .'.'.$extension, File::get($img_file_uploaded));
 
         // For S3 Amazon storage
-        $success_img_upload = $storage->put($img_file_name .'.'.$extension, File::get($img_file_uploaded), 'public');
+        // $success_img_upload = $storage->put($img_file_name .'.'.$extension, File::get($img_file_uploaded), 'public');
 
         if($success_img_upload == true)
         {
             // get path of uploaded file from Local storage
-            // $get_file = $storage->url('public/' . $img_file_name.'.'.$extension);
+            $get_file = $storage->url('public/' . $img_file_name.'.'.$extension);
 
             // get path of uploaded file from S3 storage
-            $get_file = $storage->url($img_file_name.'.'.$extension);
+            // $get_file = $storage->url($img_file_name.'.'.$extension);
 
             $txt_file = $img_file_name. '.txt';
 
@@ -54,8 +55,9 @@ class KhmerOCREngine extends Controller
 
             exec($command);
 
-            //upload text file to S3
+            //upload img and text file to S3
             $storage->put($txt_file, File::get($txt_file), 'public');
+            $storage->put($img_file_name .'.'.$extension, File::get($img_file_name .'.'.$extension), 'public');
 
             $result = array(
                 'result' => null,
