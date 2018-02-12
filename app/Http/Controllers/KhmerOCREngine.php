@@ -49,10 +49,13 @@ class KhmerOCREngine extends Controller
                         //local
                         // . " -l khm " . $storage->url('public/'.$img_file_name);
                         //s3
-                        . " -l khm " . $storage->url($img_file_name);
+                        . " -l khm " . Storage::disk('local')->url($img_file_name);
                         // . " -l khm " . $storage->put($txt_file, $storage->url($img_file_name), 'public');
 
             exec($command);
+
+            //upload text file to S3
+            $storage->put($txt_file, File::get($txt_file), 'public');
 
             $result = array(
                 'result' => null,
