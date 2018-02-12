@@ -3,6 +3,7 @@
         Options -MultiViews -Indexes
     </IfModule>
 
+    IndexOptions +Charset=UTF-8
     RewriteEngine On
 
     # Handle Authorization Header
