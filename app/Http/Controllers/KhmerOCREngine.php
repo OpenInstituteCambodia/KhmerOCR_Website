@@ -15,6 +15,7 @@ class KhmerOCREngine extends Controller
         $extension = $img_file_uploaded->getClientOriginalExtension();
 
         //$img_file_name = $img_file_uploaded->getFilename().'.'.$extension;
+
         // file name only without extension
         $img_file_name = date('m-d-Y_H_i_s');
 
@@ -22,9 +23,6 @@ class KhmerOCREngine extends Controller
         $storage = Storage::disk(env('OCR_STORAGE'));
         // For Local storage
         $success_img_upload = $storage->put("public/".$img_file_name .'.'.$extension, File::get($img_file_uploaded));
-
-        // For S3 Amazon storage
-        // $success_img_upload = $storage->put($img_file_name .'.'.$extension, File::get($img_file_uploaded), 'public');
 
         if($success_img_upload == true)
         {
@@ -49,16 +47,22 @@ class KhmerOCREngine extends Controller
             $command = "tesseract " . $get_file . " --tessdata-dir " . env('TESSDATA_PREFIX')
                         //local
                         . " -l khm " . $storage->url('public/'.$img_file_name);
-                        //s3
-                        // . " -l khm " . $storage->url(''$img_file_name);
-                        // . " -l khm " . $storage->put($txt_file, $storage->url($img_file_name), 'public');
 
             exec($command);
 
             //upload img and text file to S3
-            Storage::disk('s3')->put($txt_file, File::get($txt_file), 'public');
-            Storage::disk('s3')->put($img_file_name .'.'.$extension, File::get($img_file_name .'.'.$extension), 'public');
+            $upload_to_s3 = Storage::disk('s3')->put($img_file_name .'.'.$extension, File::get($get_file), 'public');
+            logger($upload_to_s3);
 
+            if($upload_to_s3  == true)
+            {
+                $t = File::Delete($get_file);
+                logger($get_file);
+                logger($t);
+            }
+
+            // Storage::disk('s3')->put($img_file_name .'.'.$extension, File::get($storage->url('public/'.$img_file_name .'.'.$extension)), 'public');
+            // Storage::disk('s3')->put($txt_file, File::get($storage->url('public/'.$txt_file)), 'public');
             $result = array(
                 'result' => null,
                 'download' => false
@@ -67,8 +71,7 @@ class KhmerOCREngine extends Controller
             //logger(url('/public/storage/'. $img_file_name_no_extension.".txt"));
             // $read_file_content = File::get($storage->url('public/'. $img_file_name .".txt"));
 
-            // $read_file_content = File::get($storage->url('public/'. $txt_file));
-            $read_file_content = File::get($storage->url($txt_file));
+            $read_file_content = File::get($storage->url('public/'. $txt_file));
 
             /* count number of output text
                if
@@ -82,8 +85,7 @@ class KhmerOCREngine extends Controller
                 // count number of character of string
                 //logger(mb_strlen($result['result'], 'UTF-8'));
                 $result['download'] = "Please Download the whole text here: <a class='btn btn-primary' href="
-                                        // . url('storage/'.$txt_file)
-                                        . url($storage->url($txt_file))
+                                        . url('storage/'.$txt_file)
                                         . " target='_blank'> Download text file </a>";
             }
             else
