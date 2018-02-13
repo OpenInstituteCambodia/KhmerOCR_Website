@@ -11,7 +11,6 @@
         <title> Khmer OCR </title>
         <!-- Bootstrap -->
         <link href="{{ URL::asset('vendors/bootstrap4.0-b3/css/bootstrap.min.css') }}" rel="stylesheet">
-        <link href="{{ URL::asset('vendors/bootstrap4.0-b3/css/scrolling-nav.css') }}" rel="stylesheet">
         <link href="{{ URL::asset('css/font-awesome.min.css') }}" rel="stylesheet">
         <link href="{{ URL::asset('vendors/bootstrap4.0-b3/css/custom.css') }}" rel="stylesheet">
     </head>

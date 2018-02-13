@@ -1,7 +1,6 @@
 <!-- Footer -->
-<footer class="py-5 footer">
+<footer class="footer">
   <div class="container">
-    <p class="m-0 text-center">Copyright &copy; {{date('Y')}}, Open Institute </p>
+    <p class="text-muted">Copyright &copy; {{date('Y')}}, Open Institute </p>
   </div>
-  <!-- /.container -->
 </footer>

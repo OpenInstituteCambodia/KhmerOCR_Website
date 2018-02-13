@@ -47,8 +47,7 @@ class KhmerOCREngine extends Controller
             $command = "tesseract " . $get_file . " --tessdata-dir " . env('TESSDATA_PREFIX')
                         //local
                         . " -l khm " . $storage->url('public/'.$img_file_name);
-
-            exec($command);
+		    exec($command);
 
             //upload img and text file to S3
             $upload_to_s3 = Storage::disk('s3')->put($img_file_name .'.'.$extension, File::get($get_file), 'public');
@@ -58,8 +57,6 @@ class KhmerOCREngine extends Controller
                 File::Delete($get_file);
             }
 
-            // Storage::disk('s3')->put($img_file_name .'.'.$extension, File::get($storage->url('public/'.$img_file_name .'.'.$extension)), 'public');
-            // Storage::disk('s3')->put($txt_file, File::get($storage->url('public/'.$txt_file)), 'public');
             $result = array(
                 'result' => null,
                 'download' => false
