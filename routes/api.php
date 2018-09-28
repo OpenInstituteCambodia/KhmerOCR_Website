@@ -16,3 +16,6 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// OCR Process Image to Text
+Route::post('/ocr_image_to_text', 'APIController@OCRBase64ImageToText');
