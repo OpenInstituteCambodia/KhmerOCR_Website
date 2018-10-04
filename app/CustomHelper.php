@@ -94,24 +94,19 @@ class CustomHelper {
 
             // work well in server
             $command = "tesseract " . $get_file . " --tessdata-dir " . env('TESSDATA_PREFIX')
-                . " -l khm " . $get_file ;
+                            . " -l khm " . $get_file ;
             exec($command);
 
             //upload img and text file to S3
             $upload_to_s3 = Storage::disk('s3')->put($image_file, File::get($get_file), 'public');
 
-//             delete img file after upload
+//             delete img file after upload to S3
             if($upload_to_s3  == true)
             {
                 File::Delete($get_file);
             }
 
-
-            //logger(url('/public/storage/'. $img_file_name_no_extension.".txt"));
-
             $read_file_content = File::get($storage->url('public/'. $txt_file));
-            // dd($read_file_content);
-            // return json_encode($read_file_content) ;
             return $read_file_content;
         }
     }
