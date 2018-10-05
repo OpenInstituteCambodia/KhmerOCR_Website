@@ -17,6 +17,7 @@ class APIController extends Controller
                 //var_dump($multi_arr);
                 foreach ($multi_arr as $each_arr) {
                     // dd($each_arr);
+                    Log::info($each_arr);
                     return CustomHelper::base64ToImageAndOCRImageToText($each_arr);
                     //foreach ($each_arr as $each_arr_obj) {
                         // Log::info($each_arr_obj['photo']);

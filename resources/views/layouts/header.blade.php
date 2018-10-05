@@ -1,6 +1,8 @@
 <!-- Navigation -->
 <div class="container">
-  <div class="navbar-header">
-    <a class="navbar-brand" href="http://open.org.kh"><img src="logo.gif"/></a>
+  <div class="navbar-header TestingBorder">
+    <a class="navbar-brand TestingBorder" href="http://open.org.kh">
+      <img src="logo.gif"/>
+    </a>
   </div>
 </div>
