@@ -1,61 +1,62 @@
 @extends('layouts.master')
 @section('content')
-  <section id="formlayout" >
-      <div class="container">
-          <div class="page-header">
-              <h1 align="center"> Khmer OCR for Limon & Unicode Images </h1>
-          </div>
-
-          <div class="row">
-              <div class="col-lg-12 mx-auto">
-                  <form id="frmUploadImg" name="frmUploadImg" method="post" enctype="multipart/form-data">
-                      {{ csrf_field() }}
-                      <div class="form-group">
-                          <div class="row justify-content-md-center" style="padding-top: 20px">
-                              <div class=".col-md-6 .offset-md-3">
-                                  <input type="file" class="form-control-file" id="image_file" name="image_file" accept="image/*">
-                              </div>
-                              <div class=".col-md-6 .offset-md-3">
-                                  <button class="btn btn-primary pull-right mb-2" id="btnsubmit" name="btnsubmit" disabled>
-                                      <i class="fa fa-file-text-o" aria-hidden="true"></i> Recognize
-                                  </button>
-                              </div>
-                          </div>
-                      </div>
-                  </form>
-
-                  <!-- Simple progress bar -->
-                  <div class="progress" id="progress_bar" style="display: none; height: 25px">
-                      <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div><br>
-
-                  <!-- Textarea for showing recognition text -->
-                  <textarea autocomplete="off" class="form-control" id="khmer_ocr_result" rows="20"></textarea>
-
-                  <!-- Showing Download button -->
-                  <br><div id="download"></div>
-              </div>
-          </div>
-      </div>
-  </section>
+        <div class="row h-25 d-inline-block d-flex justify-content-center">
+            <div class="col-12 homeTitle">
+                <img src="ocr_icon_small.png" width="90px">
+                <h1> Khmer OCR Engine for Limon & Unicode </h1>
+            </div>
+        </div>
+        <form name="frmUploadImg">
+            {{ csrf_field() }}
+            <div class="row d-flex justify-content-center homeFileUpload">
+                <div class="col-12 ">
+                    <label for="file_upload" class="custom-file-upload">
+                        <i class="fas fa-file-upload fa-4x"></i>
+                        <br> Choose Image or PDF file
+                    </label>
+                    <input id="file_upload" name='file_upload' type="file" style="display:none;">
+                </div>
+            </div>
+            <div class="d-flex justify-content-center divButtonParent">
+                <button class="btn btnBig" id="btnsubmit" name="btnsubmit" disabled>
+                    Recognize <i class="fas fa-angle-double-right fa-1x"></i>
+                </button>
+            </div>
+        </form>
+        <div class="row homeFileResult">
+            <div class="col-6 divWithScrollXY">
+                <img src="1.jpg">
+            </div>
+            <div class="col-6 divWithScrollXY">
+                sdfsdf sfsdfsdf asdsdf
+            </div>
+        </div>
+        <br>
+        <div class="d-flex justify-content-center">
+            page 1 2 3
+        </div>
 @endsection
 
 @push('script')
   <script>
       $(document).ready(function() {
+          //show recognize btn disable on page load
+          $('#btnsubmit').attr('disabled',true);
 
-          $('#image_file').change(function(){
-                  if ($(this).val()) {
-                      $('#btnsubmit').attr('disabled',false);
-                  }
-              }
-          );
+          // When user selects or reselects img, pdf file
+          $('#file_upload').change(function() {
+              var i = $(this).prev('label').clone();
+              var file = $('#file_upload')[0].files[0].name;
+              $(this).prev('label').text(file);
+              $('#btnsubmit').attr('disabled',false);
+          });
 
-          // submitting form vale
+          // submitting form value
           $("form[name='frmUploadImg']").submit(function(e) {
-              $('#progress_bar').show();
-              $("#khmer_ocr_result").val("");
-              $("#download").html("");
+              alert('form upload image');
+//              $('#progress_bar').show();
+//              $("#khmer_ocr_result").val("");
+//              $("#download").html("");
 
               var formData = new FormData($(this)[0]);
               $.ajax({
@@ -63,10 +64,11 @@
                   type: "POST",
                   data: formData,
                   success: function (response) {
-                      $('#progress_bar').hide();
+                      //$('#progress_bar').hide();
                       var parsed = JSON.parse(response);
-                      $("#khmer_ocr_result").val(parsed.result);
-                      $("#download").html(parsed.download);
+                      alert('result= ' + parsed.result);
+                      //$("#khmer_ocr_result").val(parsed.result);
+                      //$("#download").html(parsed.download);
                   },
                   cache: false,
                   contentType: false,
@@ -74,6 +76,8 @@
               });
               e.preventDefault();
           }); // end of frmUploadImg
+
       });
+
   </script>
 @endpush

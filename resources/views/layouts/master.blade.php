@@ -9,10 +9,14 @@
         <!-- CSRF Token -->
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title> Khmer OCR </title>
-        <!-- Bootstrap -->
-        <link href="{{ URL::asset('vendors/bootstrap4.0-b3/css/bootstrap.min.css') }}" rel="stylesheet">
-        <link href="{{ URL::asset('css/font-awesome.min.css') }}" rel="stylesheet">
-        <link href="{{ URL::asset('vendors/bootstrap4.0-b3/css/custom.css') }}" rel="stylesheet">
+
+        <!-- Font-awesome -->
+        <link href="{{URL::asset('vendors/fontsawesome5.5.0/css/all.min.css')}}" rel="stylesheet">
+        <link href="{{ URL::asset('vendors/bootstrap4.1.3/css/bootstrap.min.css') }}" rel="stylesheet">
+
+        <!-- Custom -->
+        <link href="{{ URL::asset('vendors/custom.css') }}" rel="stylesheet">
+
     </head>
     <body>
         @include('layouts.header')
@@ -21,8 +25,7 @@
         @include('layouts.footer')
         <!-- /footer content -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script src="{{ URL::asset('vendors/bootstrap4.0-b3/js/bootstrap.min.js')}}"></script>
-        <script src="{{ URL::asset('vendors/bootstrap4.0-b3/js/scrolling-nav.js')}}"></script>
+        <script src="{{ URL::asset('vendors/bootstrap4.1.3/js/bootstrap.min.js')}}"></script>
 
         @stack('script')
     </body>

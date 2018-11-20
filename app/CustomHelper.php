@@ -28,7 +28,8 @@ class CustomHelper {
 //                unlink(Storage::disk('public')->path($current_date . ".jpg"));
 //            }
 
-            $img = str_replace('data:image/*;charset=utf-8;base64,', '', $photo);
+            //$img = str_replace('data:image/*;charset=utf-8;base64,', '', $photo);
+            $img = str_replace('data:image/jpeg;base64', '', $photo);
             $img_file_name = $current_date.".jpg";
             $data = base64_decode($img);
 
@@ -50,7 +51,8 @@ class CustomHelper {
                 else{
                     return collect([
                         'code' => '404',
-                        'message' => "Something went wrong!"
+                        'message' => "Result is null",
+                        'ocr_generated_text' => $text_result
                     ]);
                 }
             }
@@ -97,14 +99,14 @@ class CustomHelper {
                             . " -l khm " . $get_file ;
             exec($command);
 
-            //upload img and text file to S3
-            $upload_to_s3 = Storage::disk('s3')->put($image_file, File::get($get_file), 'public');
-
-//             delete img file after upload to S3
-            if($upload_to_s3  == true)
-            {
-                File::Delete($get_file);
-            }
+            //upload img and text file to S3 cd
+//            $upload_to_s3 = Storage::disk('s3')->put($image_file, File::get($get_file), 'public');
+//
+////             delete img file after upload to S3
+//            if($upload_to_s3  == true)
+//            {
+//                File::Delete($get_file);
+//            }
 
             $read_file_content = File::get($storage->url('public/'. $txt_file));
             return $read_file_content;

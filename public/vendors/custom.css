@@ -1,0 +1,82 @@
+body{
+  overflow-x: hidden;
+  background-color: #FFFFFF;
+}
+
+.footer {
+  vertical-align: middle;
+  background-color: #E6EAEF;
+  color: #E6EAEF;
+  text-align: center;
+}
+
+.TestingBorder{
+  border:2px solid palevioletred;
+}
+.centerMiddle{
+  margin: auto;
+  display: block;
+  /*margin-left: auto;*/
+  /*margin-right:auto;*/
+}
+.borderDashing{
+  border: 2px dashed rgba(114, 186, 94, 0.35);
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: auto;
+  background: rgba(114, 186, 94, 0.05);
+  margin-bottom: 1rem;
+}
+.heightAuto{
+  height: auto;
+}
+.heightSize{
+  height: 35rem;
+}
+.leftPadding{
+  left: 3.5rem;
+}
+.headerBgColor{
+  background-color: #E6EAEF !important;
+  /*ededed E6EAEF*/
+}
+.homeTitle{
+  text-align: center !important;
+  color: #17324F;
+}
+.homeFileUpload{
+  background-color: #E6EAEF;
+  padding:1em;
+  padding-bottom: 1.2em;
+}
+.custom-file-upload {
+  width: 100%;
+  text-align: center;
+  border: 3px dashed #ffffff;
+  display: inline-block;
+  /*padding: 50px;*/
+  padding:15px;
+  cursor: pointer;
+  color: #17324F;
+}
+.divButtonParent{
+  position: relative;
+  margin-top: -1.5%;
+}
+.btnBig{
+  font-size: 19px;
+  padding: 12px;
+  background-color: #0a0082;
+  color: #ffffff;
+}
+.homeFileResult{
+  margin-top:0.5em;
+  margin-left:1em;
+  margin-right:1em;
+}
+.divWithScrollXY{
+  max-height: 40vh;
+  border: 2px solid #E6EAEF;
+  text-align: justify !important;
+  overflow-x: auto;
+  overflow-y: auto;
+}
