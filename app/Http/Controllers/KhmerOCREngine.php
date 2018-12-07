@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -11,148 +12,134 @@ class KhmerOCREngine extends Controller
 {
     function RecognitionEngine(Request $request)
     {
-        // echo "RecognitionEngine()";
         $file_uploaded = $request->file('file_upload');
 
-        // check mime of file
-        $finfo = finfo_open( FILEINFO_MIME_TYPE );
-        $mtype = finfo_file( $finfo, $file_uploaded );
-        finfo_close( $finfo );
-        // echo "mtype: " . $mtype . "<br>";
-        // mtype: application/pdf
-        // mtype: image/jpeg
-        // mtype: image/png
+        // check mime of file:  application/pdf, image/jpeg, image/png
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mtype = finfo_file($finfo, $file_uploaded);
+        finfo_close($finfo);
 
-        // output: pdf, jpg, png
+        // file extension: pdf, jpg, png
         $extension = $file_uploaded->getClientOriginalExtension();
-        //$img_file_name = $img_file_uploaded->getFilename().'.'.$extension;
-        //echo "extension: " . $extension . "<br>";
-
         // new file name only without extension
-        $file_name = date('m-d-Y_H_i_s');
+        $file_name = date('dmY_His');
 
         // set storage name to be used
         $storage = Storage::disk(env('OCR_STORAGE'));
-
         // For Local storage
-        $success_file_upload = $storage->put("public/".$file_name .'.'.$extension, File::get($file_uploaded));
-        // echo "file_uploaded: " . $file_uploaded . "<br>";
+        $success_file_upload = $storage->put("public/" . $file_name . '.' . $extension, File::get($file_uploaded));
 
-        if($success_file_upload == true) {
+        $return_result = array(
+            'firstImg' => null,
+            'firstOCRText' => null,
+            'download' => null
+        );
+
+        if ($success_file_upload == true) {
             // get path of uploaded file from Local storage
-//            $get_file = $storage->url('public/' . $file_name.'.'.$extension);
-//            //echo "get_file_path: " . $get_file . "<br>";
-//
+            $get_file = $storage->url('public/' . $file_name . '.' . $extension);
 //            // get path of uploaded file from S3 storage
 //            // $get_file = $storage->url($img_file_name.'.'.$extension);
-//
-//            $txt_file = $file_name. '.txt';
-
-        }
 
 
+            /** PDF file consists of multiple output OCR generated Text & image files */
+            if ($mtype == 'application/pdf') {
+                /** Get Total pdf pages */
+                $totalPDFPages = $this->getPDFPages($get_file);
+
+                // Calling Convert Command Console
+                Artisan::call('command:convert',
+                    [ 'convertInputFile' => $storage->url('public/' . $file_name . '.' . $extension),
+                        'convertOutputFile' => $storage->url('public/' . $file_name . '.jpg')
+                    ], null);
+
+                // foreach PDF page
+                for ($i = 0; $i < $totalPDFPages; $i++) {
+                    // Calling each Tesseract Command Console
+                    Artisan::call('command:tesseract',
+                        [
+                            'inputFile' => $storage->url('public/' . $file_name . "-" . $i . '.jpg'),
+                            'tessdata_dir' => env('TESSDATA_PREFIX'),
+                            'outputFile' => $storage->url('public/' . $file_name . "-" . $i)
+                        ], null);
+
+                        // append text files into a single text file for all output of generated text
+                        $read_file_content_i = File::get($storage->url('public/' . $file_name . "-" . $i . '.txt'));
+                        /* Write and append the contents to the file (FILE_APPEND) and (LOCK_EX) flag to prevent anyone else writing to the file at the same time */
+                        file_put_contents($storage->url('public/' . $file_name . "_all.txt"), $read_file_content_i, FILE_APPEND | LOCK_EX);
+                } // end of for ($i = 0; $i < $totalPDFPages; $i++)
+
+                $img_str_0 = '/storage/' . $file_name . '-0.jpg';
+                $return_result['firstImg'] = "<img src='" . $img_str_0 . "'>";
+                $read_file_content_0 = File::get($storage->url('public/' . $file_name . '-0.txt'));
+                $return_result['firstOCRText'] = $read_file_content_0;
+
+                $return_result['download'] = "<a href="
+                    . url('storage/' . $file_name . "_all.txt")
+                    . " target='_blank' class='btn btnBigLightPurple'>
+                            <i class=\"fas fa-cloud-download-alt fa-1x\"></i> Download OCR Text 
+                        </a>";
+                return json_encode($return_result);
+
+                // pagination
 
 
 
-//        if($success_file_upload == true)
-//        {
-//            // get path of uploaded file from Local storage
-//            $get_file = $storage->url('public/' . $file_name.'.'.$extension);
-//            //echo "get_file_path: " . $get_file . "<br>";
-//
-//            // get path of uploaded file from S3 storage
-//            // $get_file = $storage->url($img_file_name.'.'.$extension);
-//
-//            $txt_file = $file_name. '.txt';
-//
-//            // pdf file
-//            if($extension == 'pdf'){
-//                // convert -density 300 test1.pdf -depth 8 -strip -background white -alpha off test1.tiff
-//                $command_pdf2tiff = "convert -density 300 " . $get_file
-//                        . " -depth 8 -strip -background white -alpha off "
-//                        . $storage->url('public/'.$file_name.'.tiff') ;
-//                exec($command_pdf2tiff);
-//
-//                // Calling Tesseract OCR Engine
-//                /**
-//                // Tesseract command to recognise and return output (stdout) as array value from terminal
-//                $command = "tesseract " . $get_file . " stdout -l khm ";
-//                 */
-//
-//                // work well in Local but not in server
-//                // $command_tesseract = "tesseract " . $get_file . " -l khm " . $storage->url('public/'.$img_file_name);
-//
-//                // work well in server
-//                $command_tesseract = "tesseract " . $storage->url('public/'.$file_name.'.tiff') . " --tessdata-dir " . env('TESSDATA_PREFIX')
-//                    //local
-//                    . " -l khm " . $storage->url('public/'.$file_name);
-//                exec($command_tesseract);
-//
-//                //upload img and text file to S3
-//                $upload_to_s3 = Storage::disk('s3')->put($file_name .'.'.$extension, File::get($get_file), 'public');
-//                // delete img file after upload
-//                if($upload_to_s3  == true)
-//                {
-//                    File::Delete($get_file);
-//                    File::Delete($storage->url('public/'.$file_name.'.tiff'));
-//                }
-//            }
-//            // image files
-//            else{
-//                // Calling Tesseract OCR Engine
-//                /**
-//                // Tesseract command to recognise and return output (stdout) as array value from terminal
-//                $command = "tesseract " . $get_file . " stdout -l khm ";
-//                 */
-//
-//                // work well in Local but not in server
-//                // $command = "tesseract " . $get_file . " -l khm " . $storage->url('public/'.$img_file_name);
-//
-//                // work well in server
-//                $command_tesseract = "tesseract " . $get_file . " --tessdata-dir " . env('TESSDATA_PREFIX')
-//                    //local
-//                    . " -l khm " . $storage->url('public/'.$file_name);
-//                exec($command_tesseract);
-////                //upload img and text file to S3
-////                $upload_to_s3 = Storage::disk('s3')->put($file_name .'.'.$extension, File::get($get_file), 'public');
-////                // delete img file after upload
-////                if($upload_to_s3  == true)
-////                {
-////                    File::Delete($get_file);
-////                }
-//            }
-//
-//            $result = array(
-//                'result' => null,
-//                'download' => false
-//            );
-//
-//            //logger(url('/public/storage/'. $img_file_name_no_extension.".txt"));
-//            // $read_file_content = File::get($storage->url('public/'. $img_file_name .".txt"));
-//
-//            $read_file_content = File::get($storage->url('public/'. $txt_file));
-//
-//            /* count number of output text
-//               if
-//                    the output > 1000 characters shows only 500 characters in textarea and display downloadable txt button
-//               else
-//                    show text in textarea
-//            */
-//            if(mb_strlen(serialize($read_file_content), 'UTF-8')>1000)
-//            {
-//                $result['result'] = Str::limit($read_file_content, 1000,'....');
-//                // count number of character of string
-//                //logger(mb_strlen($result['result'], 'UTF-8'));
-//                $result['download'] = "Please Download the whole text here: <a class='btn btn-primary' href="
-//                                        . url('storage/'.$txt_file)
-//                                        . " target='_blank'> Download text file </a>";
-//            }
-//            else
-//            {
-//                $result['result'] = $read_file_content;
-//            }
-//            return json_encode($result) ;
-//        }
+            } // .if($mtype == 'application/pdf')
+            /** image file has only 1 output OCR generated Text */
+            else if ($mtype == 'image/jpeg' || $mtype == 'image/png') {
+
+                $txt_file = $file_name . '.txt';
+                $command_img_tesseract = "tesseract " . $get_file
+                    . " --tessdata-dir " . env('TESSDATA_PREFIX')
+                    . " -l khm " . $storage->url('public/' . $file_name);
+                exec($command_img_tesseract, $command_img_tesseract_output);
+
+                /** if command_img_tesseract is completely executed; then the result in text file is already generated */
+                if ($command_img_tesseract_output == []) {
+
+                    $img_str = '/storage/' . $file_name . '.jpg';
+                    $return_result['firstImg'] = "<img src='" . $img_str . "'>";
+                    $read_file_content = File::get($storage->url('public/' . $txt_file));
+                    $return_result['firstOCRText'] = $read_file_content;
+                    $return_result['download'] = "<a href="
+                        . url('storage/' . $txt_file)
+                        . " target='_blank' class='btn btnBigLightPurple'>
+                                <i class=\"fas fa-cloud-download-alt fa-1x\"></i> Download OCR Text 
+                            </a>";
+                    return json_encode($return_result);
+                }
+            }
+
+        } // .if($success_file_upload == true)
 
     } // end of function RecognitionEngine()
+
+    /**
+     * Function to get Total number of pdf pages
+     * @param $pdfFile
+     * @return int
+     */
+    function getPDFPages($pdfFile)
+    {
+        // $cmd = "/path/to/pdfinfo";           // Linux
+
+        // Parse entire output
+        // Surround with double quotes if file name has spaces
+        // exec("$cmd \"$document\"", $output);
+
+        // Show all pdf file info
+        exec("pdfinfo \"$pdfFile\" 2>&1", $output);
+        // Iterate through lines
+        $pagecount = 0;
+        foreach ($output as $op) {
+            // Extract the number from output e.g Pages:   10
+            if (preg_match("/Pages:\s*(\d+)/i", $op, $matches) === 1) {
+                $pagecount = intval($matches[1]);
+                break;
+            }
+        }
+        return $pagecount;
+    } // .function getPDFPages($pdfFile)
+
 } // end of class KhmerOCREngine

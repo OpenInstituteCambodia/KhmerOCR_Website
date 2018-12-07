@@ -62,14 +62,25 @@ body{
   position: relative;
   margin-top: -1.5%;
 }
+.divButtonParentRight{
+  position: relative;
+  margin-top: -3.7%;
+  right: 16px;
+}
 .btnBig{
   font-size: 19px;
   padding: 12px;
   background-color: #0a0082;
   color: #ffffff;
 }
+.btnBigLightPurple{
+  font-size: 19px;
+  padding: 12px;
+  background-color: #96488d;
+  color: #ffffff;
+}
 .homeFileResult{
-  margin-top:0.5em;
+  margin-top:1em;
   margin-left:1em;
   margin-right:1em;
 }
@@ -79,4 +90,38 @@ body{
   text-align: justify !important;
   overflow-x: auto;
   overflow-y: auto;
+}
+.divWithScrollXY img{
+  width: 100%;
+  border: 2px solid #E6EAEF;
+  text-align: justify !important;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+.wrapper{
+  margin: 60px auto;
+  text-align: center;
+}
+h1{
+  margin-bottom: 1.25em;
+}
+#pagination-demo{
+  display: inline-block;
+  margin-bottom: 1.75em;
+}
+#pagination-demo li{
+  display: inline-block;
+}
+
+.page-content{
+  background: #eee;
+  display: inline-block;
+  padding: 10px;
+  width: 100%;
+  max-width: 660px;
+}
+
+.modal-content{
+  background-color: rgba(117, 116, 122, 0.2);
+  color: #ffff;
 }

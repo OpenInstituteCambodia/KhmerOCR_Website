@@ -14,7 +14,7 @@
                         <i class="fas fa-file-upload fa-4x"></i>
                         <br> Choose Image or PDF file
                     </label>
-                    <input id="file_upload" name='file_upload' type="file" style="display:none;">
+                    <input id="file_upload" name='file_upload' type="file" style="display:none;" accept="application/pdf, image/jpeg, image/png">
                 </div>
             </div>
             <div class="d-flex justify-content-center divButtonParent">
@@ -22,18 +22,31 @@
                     Recognize <i class="fas fa-angle-double-right fa-1x"></i>
                 </button>
             </div>
+            <div class="d-flex justify-content-end divButtonParentRight" id="download"></div>
         </form>
-        <div class="row homeFileResult">
-            <div class="col-6 divWithScrollXY">
-                <img src="1.jpg">
+        <div class="row homeFileResult" id="div_result">
+            <div class="col-6 divWithScrollXY" id="khmer_ocr_img">
             </div>
-            <div class="col-6 divWithScrollXY">
-                sdfsdf sfsdfsdf asdsdf
+            <div class="col-6 divWithScrollXY" id="khmer_ocr_result">
             </div>
         </div>
         <br>
-        <div class="d-flex justify-content-center">
-            page 1 2 3
+        <div class="row" id="div_pagination">
+            <div class="col-12 d-flex justify-content-center" style="padding: 10px">
+                <ul id="pagination-demo" class="pagination-sm"></ul>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="spinnerLoading" tabindex="-1" role="dialog" aria-labelledby="spinnerLoadingModalCenter" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-body text-center">
+                        <h5 class="modal-title" id="spinnerLoadingTitle">Please Waiting .... </h5>
+                        <div class="fa fa-spinner fa-spin fa-3x"></div>
+                    </div>
+                </div>
+            </div>
         </div>
 @endsection
 
@@ -42,6 +55,9 @@
       $(document).ready(function() {
           //show recognize btn disable on page load
           $('#btnsubmit').attr('disabled',true);
+          $('#div_result').hide();
+          $('#div_pagination').hide();
+
 
           // When user selects or reselects img, pdf file
           $('#file_upload').change(function() {
@@ -53,22 +69,34 @@
 
           // submitting form value
           $("form[name='frmUploadImg']").submit(function(e) {
-              alert('form upload image');
+              //alert('form upload image');
 //              $('#progress_bar').show();
-//              $("#khmer_ocr_result").val("");
-//              $("#download").html("");
+              $("#khmer_ocr_result").val("");
+              $("#download").html("");
+
+              $("#spinnerLoading").modal({
+                  backdrop: "static", //remove ability to close modal with click
+                  keyboard: false, //remove option to close with keyboard
+                  show: true //Display loader!
+              });
 
               var formData = new FormData($(this)[0]);
+
               $.ajax({
                   url: "{{ url('/generated_text') }}",
                   type: "POST",
                   data: formData,
                   success: function (response) {
                       //$('#progress_bar').hide();
+                      // alert('result= ' + response);
                       var parsed = JSON.parse(response);
-                      alert('result= ' + parsed.result);
-                      //$("#khmer_ocr_result").val(parsed.result);
-                      //$("#download").html(parsed.download);
+                      // alert('result= ' + parsed);
+                      $("#khmer_ocr_img").html(parsed.firstImg);
+                      $("#khmer_ocr_result").html(parsed.firstOCRText);
+                      $("#download").html(parsed.download);
+                      $('#div_result').show();
+                      $('#div_pagination').show();
+                      $('#spinnerLoading').modal('hide');
                   },
                   cache: false,
                   contentType: false,
@@ -76,6 +104,25 @@
               });
               e.preventDefault();
           }); // end of frmUploadImg
+
+          $('#pagination-demo').twbsPagination({
+              totalPages: 16,
+              visiblePages: 6,
+              href: true,
+              next: 'ទៅមុខ',
+              prev: 'ថយក្រោយ',
+              // onclick on each page button
+              onPageClick: function (event, page) {
+                  //fetch content and render here
+                  // $('#page-content').text('Page ' + page) + ' content here';
+                  console.log('event: ');
+                  console.log(event);
+                  console.log('page: ' + page);
+                  // update image and result div
+//                  $("#khmer_ocr_img").html(parsed.firstImg);
+//                  $("#khmer_ocr_result").html(parsed.firstOCRText);
+              }
+          });
 
       });
 

@@ -1,0 +1,2 @@
+[Tue Dec 04 16:47:26.947882 2018] [:error] [pid 29178] [client 127.0.0.1:33968] PHP Fatal error:  Maximum execution time of 30 seconds exceeded in /opt/lampp/htdocs/KhmerOCR/app/Console/Commands/tesseractCMD.php on line 63, referer: http://khmerocr.local/
+[Wed Dec 05 17:22:17.352629 2018] [php7:warn] [pid 10649] [client 127.0.0.1:37254] PHP Warning:  POST Content-Length of 9685271 bytes exceeds the limit of 8388608 bytes in Unknown on line 0, referer: http://khmerocr.local/
