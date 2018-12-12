@@ -148,7 +148,7 @@ class KhmerOCREngine extends Controller
      */
     function getPDFPages($pdfFile)
     {
-        // $cmd = "/path/to/pdfinfo"; // Linux
+        // $cmd = "/path/to/pdfinfo"; // Linux path
 
         // Parse entire output
         // Surround with double quotes if file name has spaces
