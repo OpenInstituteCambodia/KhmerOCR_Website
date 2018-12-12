@@ -26,21 +26,24 @@ class KhmerOCREngine extends Controller
 
         // set storage name to be used
         $storage = Storage::disk(env('OCR_STORAGE'));
+
         // For Local storage
         $success_file_upload = $storage->put("public/" . $file_name . '.' . $extension, File::get($file_uploaded));
 
         $return_result = array(
             'firstImg' => null,
             'firstOCRText' => null,
-            'download' => null
+            'download' => null,
+            'totalPDFPages' => null,
+            'imageFileName' => null,
         );
 
-        if ($success_file_upload == true) {
+        if ($success_file_upload == true)
+        {
             // get path of uploaded file from Local storage
             $get_file = $storage->url('public/' . $file_name . '.' . $extension);
 //            // get path of uploaded file from S3 storage
 //            // $get_file = $storage->url($img_file_name.'.'.$extension);
-
 
             /** PDF file consists of multiple output OCR generated Text & image files */
             if ($mtype == 'application/pdf') {
@@ -79,16 +82,14 @@ class KhmerOCREngine extends Controller
                     . " target='_blank' class='btn btnBigLightPurple'>
                             <i class=\"fas fa-cloud-download-alt fa-1x\"></i> Download OCR Text 
                         </a>";
+                $return_result['totalPDFPages'] = $totalPDFPages;
+                $return_result['imageFileName'] = $file_name;
+                //$return_result['pdfContentArrs'] = $pagination_arrs;
                 return json_encode($return_result);
-
-                // pagination
-
-
-
             } // .if($mtype == 'application/pdf')
             /** image file has only 1 output OCR generated Text */
-            else if ($mtype == 'image/jpeg' || $mtype == 'image/png') {
-
+            else if ($mtype == 'image/jpeg' || $mtype == 'image/png')
+            {
                 $txt_file = $file_name . '.txt';
                 $command_img_tesseract = "tesseract " . $get_file
                     . " --tessdata-dir " . env('TESSDATA_PREFIX')
@@ -111,9 +112,34 @@ class KhmerOCREngine extends Controller
                 }
             }
 
-        } // .if($success_file_upload == true)
+            //upload img and text file to S3
+            $upload_to_s3 = Storage::disk('s3')->put($file_name .'.'.$extension, File::get($get_file), 'public');
+            // delete img file after upload
+            if($upload_to_s3  == true)
+            {
+                File::Delete($get_file);
+            }
 
+        } // .if($success_file_upload == true)
     } // end of function RecognitionEngine()
+
+    function PaginationRequest(Request $request)
+    {
+        $fileName = $request->fname;
+        $pageNumber = ($request->page)-1;
+        $returnResult = array(
+            'Img' => null,
+            'OCRText' => null,
+        );
+        // set storage name to be used
+        $storage = Storage::disk(env('OCR_STORAGE'));
+
+        $img_str = '/storage/' . $fileName . '-' . $pageNumber . '.jpg';
+        $returnResult['Img'] = "<img src='" . $img_str . "'>";
+        $read_file_content = File::get($storage->url('public/' . $fileName . '-' . $pageNumber . '.txt'));
+        $returnResult['OCRText'] = $read_file_content;
+        return json_encode($returnResult);
+    } // end of function PaginationRequest()
 
     /**
      * Function to get Total number of pdf pages
@@ -122,7 +148,7 @@ class KhmerOCREngine extends Controller
      */
     function getPDFPages($pdfFile)
     {
-        // $cmd = "/path/to/pdfinfo";           // Linux
+        // $cmd = "/path/to/pdfinfo"; // Linux
 
         // Parse entire output
         // Surround with double quotes if file name has spaces

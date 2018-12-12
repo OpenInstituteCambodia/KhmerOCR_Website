@@ -16,3 +16,4 @@ Route::get('/', function () {
 });
 
 Route::post('generated_text', 'KhmerOCREngine@RecognitionEngine');
+Route::post('pagination_request', 'KhmerOCREngine@PaginationRequest');

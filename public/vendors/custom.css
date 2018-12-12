@@ -61,11 +61,38 @@ body{
 .divButtonParent{
   position: relative;
   margin-top: -1.5%;
+  z-index: 999;
 }
+@media (min-width: 576px) {
+  .divButtonParent{
+    right: 0.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .divButtonParent{
+    right: 1.5rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .divButtonParent{
+    right: 3rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .divButtonParent{
+    right: 4rem;
+  }
+}
+
+
 .divButtonParentRight{
   position: relative;
-  margin-top: -3.7%;
+  margin-top: -1.5%;
   right: 16px;
+  z-index: 999;
 }
 .btnBig{
   font-size: 19px;
@@ -105,14 +132,18 @@ body{
 h1{
   margin-bottom: 1.25em;
 }
-#pagination-demo{
+#div_pagination{
+  display: flex;
+  margin-top: 20px;
+}
+#pagination{
   display: inline-block;
   margin-bottom: 1.75em;
+  margin: 0 auto;
 }
-#pagination-demo li{
+#pagination li{
   display: inline-block;
 }
-
 .page-content{
   background: #eee;
   display: inline-block;
@@ -120,8 +151,8 @@ h1{
   width: 100%;
   max-width: 660px;
 }
-
 .modal-content{
-  background-color: rgba(117, 116, 122, 0.2);
+  /*background-color: rgba(117, 116, 122, 0.2);*/
+  background-color:#ffff;
   color: #ffff;
 }

@@ -17,32 +17,31 @@
                     <input id="file_upload" name='file_upload' type="file" style="display:none;" accept="application/pdf, image/jpeg, image/png">
                 </div>
             </div>
-            <div class="d-flex justify-content-center divButtonParent">
-                <button class="btn btnBig" id="btnsubmit" name="btnsubmit" disabled>
-                    Recognize <i class="fas fa-angle-double-right fa-1x"></i>
-                </button>
+            <div class="row">
+                <div class="col-7 d-flex justify-content-end divButtonParent">
+                    <button class="btn btnBig" id="btnsubmit" name="btnsubmit" disabled>
+                        Recognize <i class="fas fa-angle-double-right fa-1x"></i>
+                    </button>
+                </div>
+                <div class="col-5 d-flex justify-content-end divButtonParentRight">
+                    <div id="download"></div>
+                </div>
             </div>
-            <div class="d-flex justify-content-end divButtonParentRight" id="download"></div>
         </form>
         <div class="row homeFileResult" id="div_result">
-            <div class="col-6 divWithScrollXY" id="khmer_ocr_img">
-            </div>
-            <div class="col-6 divWithScrollXY" id="khmer_ocr_result">
-            </div>
+            <div class="col-6 divWithScrollXY" id="khmer_ocr_img"></div>
+            <div class="col-6 divWithScrollXY" id="khmer_ocr_result"></div>
         </div>
-        <br>
-        <div class="row" id="div_pagination">
-            <div class="col-12 d-flex justify-content-center" style="padding: 10px">
-                <ul id="pagination-demo" class="pagination-sm"></ul>
-            </div>
+        <div id="div_pagination" >
+            <ul id="pagination" class="pagination-sm"></ul>
         </div>
 
-        <!-- Modal -->
+        <!-- Modal for waiting while recognize data -->
         <div class="modal fade" id="spinnerLoading" tabindex="-1" role="dialog" aria-labelledby="spinnerLoadingModalCenter" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
                 <div class="modal-content">
                     <div class="modal-body text-center">
-                        <h5 class="modal-title" id="spinnerLoadingTitle">Please Waiting .... </h5>
+                        <h5 class="modal-title" id="spinnerLoadingTitle">Please Wait .... </h5>
                         <div class="fa fa-spinner fa-spin fa-3x"></div>
                     </div>
                 </div>
@@ -53,11 +52,13 @@
 @push('script')
   <script>
       $(document).ready(function() {
+          // global csrf token variable
+          token = $('input[name=_token]').val();
           //show recognize btn disable on page load
           $('#btnsubmit').attr('disabled',true);
+          $("#imageFileName").val("");
           $('#div_result').hide();
           $('#div_pagination').hide();
-
 
           // When user selects or reselects img, pdf file
           $('#file_upload').change(function() {
@@ -69,8 +70,6 @@
 
           // submitting form value
           $("form[name='frmUploadImg']").submit(function(e) {
-              //alert('form upload image');
-//              $('#progress_bar').show();
               $("#khmer_ocr_result").val("");
               $("#download").html("");
 
@@ -87,43 +86,47 @@
                   type: "POST",
                   data: formData,
                   success: function (response) {
-                      //$('#progress_bar').hide();
-                      // alert('result= ' + response);
                       var parsed = JSON.parse(response);
-                      // alert('result= ' + parsed);
                       $("#khmer_ocr_img").html(parsed.firstImg);
                       $("#khmer_ocr_result").html(parsed.firstOCRText);
                       $("#download").html(parsed.download);
                       $('#div_result').show();
-                      $('#div_pagination').show();
                       $('#spinnerLoading').modal('hide');
+                      // if pdf with more than 1 page, then show pagination
+                      if(parsed.totalPDFPages > 1){
+                          $('#div_pagination').show();
+                          $('#pagination').twbsPagination({
+                              totalPages: parseInt(parsed.totalPDFPages),
+                              visiblePages: 5,
+                              prev: 'Prev',
+                              next: 'Next',
+                              onPageClick: function (event, page) {
+                                  $.ajax({
+                                      type: 'POST',
+                                      url: '/pagination_request',
+                                      data: {
+                                          _token: token,
+                                          fname: parsed.imageFileName,
+                                          page: page,
+                                        },
+                                      cache: false,
+                                      success: function(result)
+                                      {
+                                          var parse_result = JSON.parse(result);
+                                          $("#khmer_ocr_img").html(parse_result.Img);
+                                          $("#khmer_ocr_result").html(parse_result.OCRText);
+                                      }
+                                  });
+                              }
+                      });
+                      }
                   },
                   cache: false,
                   contentType: false,
-                  processData: false
+                  processData: false,
               });
               e.preventDefault();
           }); // end of frmUploadImg
-
-          $('#pagination-demo').twbsPagination({
-              totalPages: 16,
-              visiblePages: 6,
-              href: true,
-              next: 'ទៅមុខ',
-              prev: 'ថយក្រោយ',
-              // onclick on each page button
-              onPageClick: function (event, page) {
-                  //fetch content and render here
-                  // $('#page-content').text('Page ' + page) + ' content here';
-                  console.log('event: ');
-                  console.log(event);
-                  console.log('page: ' + page);
-                  // update image and result div
-//                  $("#khmer_ocr_img").html(parsed.firstImg);
-//                  $("#khmer_ocr_result").html(parsed.firstOCRText);
-              }
-          });
-
       });
 
   </script>

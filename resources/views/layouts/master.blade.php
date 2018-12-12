@@ -27,7 +27,7 @@
         {{--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>--}}
         <script src="{{ URL::asset('vendors/jquery-3.3.1.min.js')}}"></script>
         <script src="{{ URL::asset('vendors/bootstrap4.1.3/js/bootstrap.min.js')}}"></script>
-        <script src="{{ URL::asset('vendors/pagination1.4.2/jquery.twbsPagination.js')}}"></script>
+        <script src="{{ URL::asset('vendors/pagination1.4.2/jquery.twbsPagination.min.js')}}"></script>
 
 
         @stack('script')
